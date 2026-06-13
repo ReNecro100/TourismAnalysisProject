@@ -1,5 +1,6 @@
 #Получить случайные записи (вплоть до 100)
-#Cортировка по значению
+#Cортировка по значениям
+
 #pip install "fastapi[standart]"
 #fastapi dev api.py --port 2137
 
