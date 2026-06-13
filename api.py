@@ -1,7 +1,7 @@
 #Получить случайные записи (вплоть до 100)
 #Cортировка по значению
 #pip install "fastapi[standart]"
-#fastapi dev/run main.py --port 2137
+#fastapi dev api.py --port 2137
 
 from fastapi import FastAPI
 import psycopg2
