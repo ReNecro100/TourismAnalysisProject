@@ -105,8 +105,20 @@ ORDER BY RANDOM() limit {n};"""
         })
     return strings
 
-@app.get("/sortby/{type}")
+@app.get("/count_sort/{type}")
 def get_sorted_by(type: str):
+    """
+    Get number of rows sorted by type:
+    \n /count_sort/month
+    \n /count_sort/trip_type
+    \n /count_sort/visit_type
+    \n /count_sort/goal
+    \n /count_sort/gender
+    \n /count_sort/tourist_age
+    \n /count_sort/income
+    \n /count_sort/days_cnt
+    \n /count_sort/visitors_cnt
+    """
     connection = psycopg2.connect(
         host="localhost",
         database="postgres",
@@ -123,12 +135,6 @@ def get_sorted_by(type: str):
         query = f"select tt.name, count(*) from tourists.tourists t join tourists.trip_type tt on t.trip_type_id=tt.id group by tt.name;"
     elif type == "visit_type":
         query = f"select tt.name, count(*) from tourists.tourists t join tourists.visit_type tt on t.visit_type_id=tt.id group by tt.name;"
-    elif type == "home_country":
-        query = f"select tt.name, count(*) from tourists.tourists t join tourists.country tt on t.home_country_id=tt.id group by tt.name;"
-    elif type == "home_region":
-        query = f"select tt.name, count(*) from tourists.tourists t join tourists.region tt on t.home_region_id=tt.id group by tt.name;"
-    elif type == "home_city":
-        query = f"select tt.name, count(*) from tourists.tourists t join tourists.city tt on t.home_city_id=tt.id group by tt.name;"
     elif type == "goal":
         query = f"select tt.name, count(*) from tourists.tourists t join tourists.goal tt on t.goal_id=tt.id group by tt.name;"
     elif type == "gender":
@@ -153,5 +159,75 @@ def get_sorted_by(type: str):
     strings = []
     for row in data:
         strings.append({"name": row[0], "count": row[1]})
+
+    return strings
+
+@app.get("/count_sort_geo/{type}")
+def get_sorted_by(type: str):
+    """
+        Get number of rows sorted by type:
+        \n /count_sort_geo/home_country
+        \n /count_sort_geo/home_region
+        \n /count_sort_geo/home_city
+        """
+    connection = psycopg2.connect(
+        host="localhost",
+        database="postgres",
+        user="postgres",
+        password="postgres",
+        port="5432",
+    )
+
+    cursor = connection.cursor()
+    query = ""
+    if type == "home_country":
+        query = f"select tt.name, count(*) from tourists.tourists t join tourists.country tt on t.home_country_id=tt.id group by tt.name;"
+    elif type == "home_region":
+        query = f"select tt.name, count(*) from tourists.tourists t join tourists.region tt on t.home_region_id=tt.id group by tt.name;"
+    elif type == "home_city":
+        query = f"select tt.name, count(*) from tourists.tourists t join tourists.city tt on t.home_city_id=tt.id group by tt.name;"
+    else:
+        return {"error": "Wrong type of column"}
+    cursor.execute(query)
+    data = cursor.fetchall()
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    strings = []
+    for row in data:
+        strings.append({"name": row[0], "count": row[1]})
+
+    return strings
+
+@app.get("/cohort_geo/{type}")
+def cohort_analytic(type: str):
+    connection = psycopg2.connect(
+        host="localhost",
+        database="postgres",
+        user="postgres",
+        password="postgres",
+        port="5432",
+    )
+
+    cursor = connection.cursor()
+    query = ""
+    if type == "home_region":
+        query = f"select tt.name, avg(days_cnt), avg(visitors_cnt), avg(spent) from tourists.tourists t join tourists.region tt on t.home_region_id=tt.id group by tt.name;"
+    elif type == "home_city":
+        query = f"select tt.name, avg(days_cnt), avg(visitors_cnt), avg(spent) from tourists.tourists t join tourists.city tt on t.home_city_id=tt.id group by tt.name;"
+    else:
+        return {"error": "Wrong type of column"}
+    cursor.execute(query)
+    data = cursor.fetchall()
+
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+    strings = []
+    for row in data:
+        strings.append({"name": row[0], "avg_days_cnt": row[1], "avg_visitors_cnt": row[2], "avg_spent": row[3]})
 
     return strings
