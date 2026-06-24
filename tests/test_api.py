@@ -1,4 +1,4 @@
-import api
+from NNTourists2022AnalyticsApp.NNTouristsAPI import api
 import pytest
 from httpx import AsyncClient, ASGITransport
 
@@ -93,7 +93,7 @@ async def test_get_sorted_by_geo_home_region():
         assert len(data) == 84
 
 @pytest.mark.asyncio
-async def test_get_sorted_by_geo_home_region():
+async def test_get_sorted_by_geo_home_city():
     async with AsyncClient(transport=ASGITransport(app=api.app), base_url="http://test") as aclient:
         response = await aclient.get("/count_sort_geo/home_city")
         assert response.status_code == 200
@@ -107,3 +107,17 @@ async def test_cohort_analytic_home_region():
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 84
+
+@pytest.mark.asyncio
+async def test_cohort_analytic_home_city():
+    async with AsyncClient(transport=ASGITransport(app=api.app), base_url="http://test") as aclient:
+        response = await aclient.get("/cohort_geo/home_city")
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 52
+
+@pytest.mark.asyncio
+async def test_avg_values():
+    async with AsyncClient(transport=ASGITransport(app=api.app), base_url="http://test") as aclient:
+        response = await aclient.get("/avg_values")
+        assert response.status_code == 200
