@@ -48,7 +48,7 @@ def mainpage(request):
     # Создаём карту
     map_obj = folium.Map(
         location=[0.0,0.0],
-        zoom_start=1,
+        zoom_start=2,
         tiles='OpenStreetMap'
     )
     # Добавляем маркеры для районов с большим количеством поездок
@@ -122,9 +122,12 @@ def mainpage(request):
     rows = requests.get("http://127.0.0.1:2137/cohort_geo/home_region").json()
     # Данные для тепловой карты: [[lat, lng, weight], ...]
     heat_data_reg_spent = []
-    for row in rows:
+    for i, row in enumerate(rows):
+        rows[i]["avg_spent"] *= 1000000
         if row["name"] != "Не указан":
             heat_data_reg_spent.append([float(row["latitude"]), float(row["longitude"]), float(row["avg_spent"]), str(row["name"])])
+        else:
+            rows.pop(i)
     # Создаём карту
     map_obj_reg_spent = folium.Map(
         location=[61.79, 96.35],
@@ -135,7 +138,7 @@ def mainpage(request):
     for item in heat_data_reg_spent:
         folium.CircleMarker(
             location=[item[0], item[1]],
-            radius=max(2, item[2]*100),
+            radius=max(2, item[2]/10000),
             popup=f"{item[3]} {item[2]}",
             color='red',
             fill=True
@@ -151,7 +154,8 @@ def mainpage(request):
         'map_html': map_html,
         'map_html_reg': map_html_reg,
         'map_html_city': map_html_city,
-        'avg_spent': avg_values[0]["avg_spent"]*1000000,
+        'avg_spent': f"{avg_values[0]["avg_spent"]*1000000:.2f}",
         'average_by_month': json.dumps(average_by_month_data),
-        'map_html_reg_spent': map_html_reg_spent
+        'map_html_reg_spent': map_html_reg_spent,
+        'cohort_data': rows
     })

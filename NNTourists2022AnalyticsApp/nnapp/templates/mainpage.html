@@ -1,13 +1,17 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <title>График</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Аналитика туристов</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAO3PJw1KR6kUrqtHkgimER95lU-sBsiMs&libraries=visualization"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="text/javascript">
-        google.charts.load('current', {'packages':['corechart']});
+        google.charts.load('current', { packages: ['corechart'] });
         google.charts.setOnLoadCallback(drawMonthChart);
         google.charts.setOnLoadCallback(drawGenderChart);
         google.charts.setOnLoadCallback(drawTouristAgeChart);
@@ -15,73 +19,125 @@
 
         function drawMonthChart() {
             var data = google.visualization.arrayToDataTable({{ count_by_month|safe }});
-            var options = {
-                title: 'Количество туристов по месяцам',
-                legend: { position: 'bottom' }
-            };
-            var chart = new google.visualization.ColumnChart(document.getElementById('count_sort_month'));
-            chart.draw(data, options);
+            var options = { title: 'Туристы по месяцам', legend: { position: 'bottom' }, fontName: 'Arial', titleTextStyle: { fontSize: 13, color: '#1a2634' }, chartArea: { width: '80%', height: '70%' } };
+            new google.visualization.LineChart(document.getElementById('count_sort_month')).draw(data, options);
         }
 
         function drawGenderChart() {
             var data = google.visualization.arrayToDataTable({{ count_by_gender|safe }});
-            var options = {
-                title: 'Количество туристов по полу',
-                legend: { position: 'bottom' }
-            };
-            var chart = new google.visualization.ColumnChart(document.getElementById('count_sort_gender'));
-            chart.draw(data, options);
+            var options = { title: 'Туристы по полу', legend: { position: 'bottom' }, fontName: 'Arial', titleTextStyle: { fontSize: 13, color: '#1a2634' }, chartArea: { width: '80%', height: '70%' } };
+            new google.visualization.ColumnChart(document.getElementById('count_sort_gender')).draw(data, options);
         }
 
         function drawTouristAgeChart() {
             var data = google.visualization.arrayToDataTable({{ count_by_tourist_age|safe }});
-            var options = {
-                title: 'Количество туристов по их возрастной группе',
-                legend: { position: 'bottom' }
-            };
-            var chart = new google.visualization.ColumnChart(document.getElementById('count_sort_tourist_age'));
-            chart.draw(data, options);
+            var options = { title: 'Туристы по возрасту', legend: { position: 'bottom' }, fontName: 'Arial', titleTextStyle: { fontSize: 13, color: '#1a2634' }, chartArea: { width: '80%', height: '70%' } };
+            new google.visualization.ColumnChart(document.getElementById('count_sort_tourist_age')).draw(data, options);
         }
 
         function drawAverageMonthChart() {
             var data = google.visualization.arrayToDataTable({{ average_by_month|safe }});
-            var options = {
-                title: 'Средние траты по месяцам',
-                legend: { position: 'bottom' }
-            };
-            var chart = new google.visualization.ColumnChart(document.getElementById('average_by_month'));
-            chart.draw(data, options);
+            var options = { title: 'Средние траты по месяцам', legend: { position: 'bottom' }, fontName: 'Arial', titleTextStyle: { fontSize: 13, color: '#1a2634' }, chartArea: { width: '80%', height: '70%' } };
+            new google.visualization.LineChart(document.getElementById('average_by_month')).draw(data, options);
         }
 
-        // Скрываем загрузку после отображения карты
         document.addEventListener('DOMContentLoaded', function() {
             var loader = document.getElementById('loading');
-            if (loader) {
-                loader.style.display = 'none';
-            }
+            if (loader) loader.style.display = 'none';
         });
-
-        // Если карта не загрузилась через 5 секунд — скрываем загрузку
         setTimeout(function() {
             var loader = document.getElementById('loading');
-            if (loader) {
-                loader.style.display = 'none';
-            }
+            if (loader) loader.style.display = 'none';
         }, 5000);
     </script>
 </head>
 <body>
-    <div id="count_tourists">Количество туристов - {{ count_tourists }}</div>
-    <div id="count_sort_month" style="width: 500px; height: 500px;"></div>
-    <div id="count_sort_gender" style="width: 500px; height: 500px;"></div>
-    <div id="count_sort_tourist_age" style="width: 500px; height: 500px;"></div>
 
-    <div id="map-container", style="width: 500px; height: 300px; margin: 0px">{{ map_html|safe }}</div>
-    <div id="map-reg-container", style="width: 500px; height: 300px; margin: 0px">{{ map_html_reg|safe }}</div>
-    <div id="map-city-container", style="width: 500px; height: 300px; margin: 0px">{{ map_html_city|safe }}</div>
+    <div class="dashboard">
 
-    <div id="avg-spent">Средняя цена - {{ avg_spent }}</div>
-    <div id="average_by_month" style="width: 500px; height: 500px;"></div>
-    <div id="map-reg-spent-container", style="width: 500px; height: 300px; margin: 0px">{{ map_html_reg_spent|safe }}</div>
+        <!-- Шапка -->
+        <div class="header">
+            <div>
+                <div class="header-title">Аналитика туристов</div>
+                <div class="header-sub">Сводка по поездкам</div>
+            </div>
+            <div class="header-stats">
+                <div><span class="stat-label">Всего туристов за 2022 год</span><br><span class="stat-number">{{ count_tourists }}</span></div>
+                <div><span class="stat-label">Средние стоимость поездки</span><br><span class="stat-number">{{ avg_spent }} ₽</span></div>
+            </div>
+        </div>
+
+        <!-- Строка 1: два графика + карта регионов -->
+        <div class="row-1">
+            <div class="card chart-card">
+                <div id="count_sort_month" class="chart-box"></div>
+            </div>
+            <div class="card chart-card">
+                <div id="average_by_month" class="chart-box"></div>
+            </div>
+            <div class="card map-card">
+                <div class="map-label">Тепловая карта по регионам</div>
+                <div class="map-wrap">{{ map_html_reg|safe }}</div>
+            </div>
+        </div>
+
+        <!-- Строка 2: гендер + возраст + карта муниципалитетов -->
+        <div class="row-2">
+            <div class="card chart-card">
+                <div id="count_sort_gender" class="chart-box"></div>
+            </div>
+            <div class="card chart-card">
+                <div id="count_sort_tourist_age" class="chart-box"></div>
+            </div>
+            <div class="card map-card">
+                <div class="map-label">Тепловая карта по муниципалитетам</div>
+                <div class="map-wrap">{{ map_html_city|safe }}</div>
+            </div>
+        </div>
+
+        <!-- Строка 3: карта трат + таблица -->
+        <div class="row-3">
+            <div class="card map-card">
+                <div class="map-label">Траты по регионам</div>
+                <div class="map-wrap">{{ map_html_reg_spent|safe }}</div>
+            </div>
+            <div class="card table-card">
+                <div class="table-title">Когортный анализ по регионам</div>
+                <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Регион</th>
+                            <th>Среднее время пребывания (дни)</th>
+                            <th>Среднее кол-во посетителей</th>
+                            <th>Средние траты (₽)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cohort_data %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.avg_days_cnt|floatformat:2 }}</td>
+                                <td>{{ item.avg_visitors_cnt|floatformat:2 }}</td>
+                                <td>{{ item.avg_spent|floatformat:2}}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="4" class="empty-row">Нет данных</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table></div>
+            </div>
+        </div>
+
+        <!-- Строка 4: общая карта стран -->
+        <div class="row-4">
+            <div class="card map-card full">
+                <div class="map-label">Общая карта поездок</div>
+                <div class="map-wrap" style="height:320px;">{{ map_html|safe }}</div>
+            </div>
+        </div>
+
+    </div>
+
 </body>
 </html>
