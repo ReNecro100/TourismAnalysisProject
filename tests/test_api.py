@@ -1,4 +1,4 @@
-from NNTourists2022AnalyticsApp.NNTouristsAPI import api
+from NNTouristsAPI import api
 import pytest
 from httpx import AsyncClient, ASGITransport
 

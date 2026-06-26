@@ -5,7 +5,7 @@ router = APIRouter()
 
 @router.get("/count_sort/month", tags=["Сортировка по столбцу"])
 def count_sort_month(cursor = Depends(get_dict_cursor)):
-    query = f"SELECT TO_CHAR(date_of_arrival, 'YYYY-MM') as month, COUNT(*) as total_trips, avg(spent)*1000000 FROM tourists.tourists GROUP BY TO_CHAR(date_of_arrival, 'YYYY-MM') ORDER BY month;"
+    query = f"SELECT TO_CHAR(date_of_arrival, 'YYYY-MM') as month, COUNT(*) as total_trips, avg(spent) FROM tourists.tourists GROUP BY TO_CHAR(date_of_arrival, 'YYYY-MM') ORDER BY month;"
     cursor.execute(query)
     data = cursor.fetchall()
     strings = []
@@ -53,14 +53,23 @@ def count_sort_visitors_cnt(cursor = Depends(get_dict_cursor)):
 def count_sort_days_cnt(cursor = Depends(get_dict_cursor)):
     return get_sortings(f"select days_cnt, count(*) from tourists.tourists group by days_cnt;", cursor)
 
+def get_sortings_geo(query, cursor):
+    cursor.execute(query)
+    data = cursor.fetchall()
+    strings = []
+    for row in data:
+        strings.append({"name": row[0], "count": row[1], "latitude": row[2], "longitude": row[3]})
+    print(strings)
+    return strings
+
 @router.get("/count_sort_geo/home_country", tags=["Сортировка по столбцу"])
 def count_sort_country(cursor = Depends(get_dict_cursor)):
-    return get_sortings(f"select tt.name, count(*) from tourists.tourists t join tourists.country tt on t.home_country_id=tt.id group by tt.name;", cursor)
+    return get_sortings_geo(f"select tt.name, count(*), tt.latitude, tt.longitude from tourists.tourists t join tourists.country tt on t.home_country_id=tt.id group by tt.name, tt.latitude, tt.longitude;", cursor)
 
 @router.get("/count_sort_geo/home_region", tags=["Сортировка по столбцу"])
 def count_sort_region(cursor = Depends(get_dict_cursor)):
-    return get_sortings(f"select tt.name, count(*) from tourists.tourists t join tourists.region tt on t.home_region_id=tt.id group by tt.name;", cursor)
+    return get_sortings_geo(f"select tt.name, count(*), tt.latitude, tt.longitude from tourists.tourists t join tourists.region tt on t.home_region_id=tt.id group by tt.name, tt.latitude, tt.longitude;", cursor)
 
 @router.get("/count_sort_geo/home_city", tags=["Сортировка по столбцу"])
 def count_sort_region(cursor = Depends(get_dict_cursor)):
-    return get_sortings(f"select tt.name, count(*) from tourists.tourists t join tourists.city tt on t.home_city_id=tt.id group by tt.name;", cursor)
+    return get_sortings_geo(f"select tt.name, count(*), tt.latitude, tt.longitude from tourists.tourists t join tourists.city tt on t.home_city_id=tt.id group by tt.name, tt.latitude, tt.longitude;", cursor)

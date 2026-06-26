@@ -20,5 +20,5 @@ import nnapp.views as views
 
 urlpatterns = [
     path('', views.mainpage, name='root'),
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls)
 ]

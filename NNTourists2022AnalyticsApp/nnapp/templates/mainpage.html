@@ -3,22 +3,85 @@
 <head>
     <title>График</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAO3PJw1KR6kUrqtHkgimER95lU-sBsiMs&libraries=visualization"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="text/javascript">
         google.charts.load('current', {'packages':['corechart']});
-        google.charts.setOnLoadCallback(drawChart);
+        google.charts.setOnLoadCallback(drawMonthChart);
+        google.charts.setOnLoadCallback(drawGenderChart);
+        google.charts.setOnLoadCallback(drawTouristAgeChart);
+        google.charts.setOnLoadCallback(drawAverageMonthChart);
 
-        function drawChart() {
-            var data = google.visualization.arrayToDataTable({{ data_json|safe }});
+        function drawMonthChart() {
+            var data = google.visualization.arrayToDataTable({{ count_by_month|safe }});
             var options = {
                 title: 'Количество туристов по месяцам',
                 legend: { position: 'bottom' }
             };
-            var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
+            var chart = new google.visualization.ColumnChart(document.getElementById('count_sort_month'));
             chart.draw(data, options);
         }
+
+        function drawGenderChart() {
+            var data = google.visualization.arrayToDataTable({{ count_by_gender|safe }});
+            var options = {
+                title: 'Количество туристов по полу',
+                legend: { position: 'bottom' }
+            };
+            var chart = new google.visualization.ColumnChart(document.getElementById('count_sort_gender'));
+            chart.draw(data, options);
+        }
+
+        function drawTouristAgeChart() {
+            var data = google.visualization.arrayToDataTable({{ count_by_tourist_age|safe }});
+            var options = {
+                title: 'Количество туристов по их возрастной группе',
+                legend: { position: 'bottom' }
+            };
+            var chart = new google.visualization.ColumnChart(document.getElementById('count_sort_tourist_age'));
+            chart.draw(data, options);
+        }
+
+        function drawAverageMonthChart() {
+            var data = google.visualization.arrayToDataTable({{ average_by_month|safe }});
+            var options = {
+                title: 'Средние траты по месяцам',
+                legend: { position: 'bottom' }
+            };
+            var chart = new google.visualization.ColumnChart(document.getElementById('average_by_month'));
+            chart.draw(data, options);
+        }
+
+        // Скрываем загрузку после отображения карты
+        document.addEventListener('DOMContentLoaded', function() {
+            var loader = document.getElementById('loading');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        });
+
+        // Если карта не загрузилась через 5 секунд — скрываем загрузку
+        setTimeout(function() {
+            var loader = document.getElementById('loading');
+            if (loader) {
+                loader.style.display = 'none';
+            }
+        }, 5000);
     </script>
 </head>
 <body>
-    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+    <div id="count_tourists">Количество туристов - {{ count_tourists }}</div>
+    <div id="count_sort_month" style="width: 500px; height: 500px;"></div>
+    <div id="count_sort_gender" style="width: 500px; height: 500px;"></div>
+    <div id="count_sort_tourist_age" style="width: 500px; height: 500px;"></div>
+
+    <div id="map-container", style="width: 500px; height: 300px; margin: 0px">{{ map_html|safe }}</div>
+    <div id="map-reg-container", style="width: 500px; height: 300px; margin: 0px">{{ map_html_reg|safe }}</div>
+    <div id="map-city-container", style="width: 500px; height: 300px; margin: 0px">{{ map_html_city|safe }}</div>
+
+    <div id="avg-spent">Средняя цена - {{ avg_spent }}</div>
+    <div id="average_by_month" style="width: 500px; height: 500px;"></div>
+    <div id="map-reg-spent-container", style="width: 500px; height: 300px; margin: 0px">{{ map_html_reg_spent|safe }}</div>
 </body>
 </html>
